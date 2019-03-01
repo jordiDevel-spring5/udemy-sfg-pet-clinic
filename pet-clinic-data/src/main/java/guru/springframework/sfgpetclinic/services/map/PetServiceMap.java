@@ -22,7 +22,7 @@ public class PetServiceMap extends AbstractMapService<Pet, Long> implements PetS
 
 	@Override
 	public Pet save(Pet t) {
-		return super.save(t.getId(), t);
+		return super.save(t);
 	}
 
 	@Override
