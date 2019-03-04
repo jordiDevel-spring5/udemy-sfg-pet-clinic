@@ -6,10 +6,19 @@ public class Pet extends BaseEntity {
 
 	private static final long serialVersionUID = 9052231982640691480L;
 
+	private String name;
 	private PetType petType;
 	private Owner owner;
 	private LocalDate birthDate;
 	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public PetType getPetType() {
 		return petType;
 	}
