@@ -10,10 +10,12 @@ import guru.springframework.sfgpetclinic.model.Pet;
 import guru.springframework.sfgpetclinic.model.PetType;
 import guru.springframework.sfgpetclinic.model.Speciality;
 import guru.springframework.sfgpetclinic.model.Vet;
+import guru.springframework.sfgpetclinic.model.Visit;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import guru.springframework.sfgpetclinic.services.PetTypeService;
 import guru.springframework.sfgpetclinic.services.SpecialityService;
 import guru.springframework.sfgpetclinic.services.VetService;
+import guru.springframework.sfgpetclinic.services.VisitService;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -22,13 +24,16 @@ public class DataLoader implements CommandLineRunner {
 	private final VetService vetService;
 	private final PetTypeService petTypeService;
 	private final SpecialityService specialityService;
+	private final VisitService visitService;
 	
 	public DataLoader(OwnerService ownerService, VetService vetService, 
-			PetTypeService petTypeService, SpecialityService specialityService) {
+			PetTypeService petTypeService, SpecialityService specialityService,
+			VisitService visitService) {
 		this.ownerService = ownerService;
 		this.vetService = vetService;
 		this.petTypeService = petTypeService;
 		this.specialityService = specialityService;
+		this.visitService = visitService;
 	}
 
 	@Override
@@ -82,6 +87,13 @@ public class DataLoader implements CommandLineRunner {
 		
 		this.ownerService.save(owner1);
 		
+		Visit visit1 = new Visit();
+		visit1.setDate(LocalDate.now());
+		visit1.setDescription("Rosco Annual Revision");
+		visit1.setPet(mikesPet);
+
+		this.visitService.save(visit1);
+		
 		Owner owner2 = new Owner();
 		owner2.setFirstName("Fiona");
 		owner2.setLastName("Glenanne");
@@ -98,6 +110,13 @@ public class DataLoader implements CommandLineRunner {
 		owner2.getPets().add(fionasPet);
 		
 		this.ownerService.save(owner2);
+		
+		Visit visit2 = new Visit();
+		visit2.setDate(LocalDate.now());
+		visit2.setDescription("Kitti Annual Revision");
+		visit2.setPet(fionasPet);
+		
+		this.visitService.save(visit2);
 		
 		System.out.println("Loaded Owners...");
 		
