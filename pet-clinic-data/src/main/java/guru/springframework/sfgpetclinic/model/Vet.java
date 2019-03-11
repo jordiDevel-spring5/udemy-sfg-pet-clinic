@@ -10,12 +10,20 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
 
 	private static final long serialVersionUID = 5719734850419870704L;
-	
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 		name = "vet_specialities",
@@ -24,12 +32,13 @@ public class Vet extends Person {
 	)
 	private Set<Speciality> specialities = new HashSet<>();
 
-	public Set<Speciality> getSpecialities() {
-		return specialities;
+	@Builder
+	public Vet(Long id, String firstName, String lastName) {
+		super(id, firstName, lastName);
 	}
 
-	public void setSpecialities(Set<Speciality> specialities) {
-		this.specialities = specialities;
+	public Vet addSpeciality(Speciality speciality) {
+		this.specialities.add(speciality);
+		return this;
 	}
-
 }

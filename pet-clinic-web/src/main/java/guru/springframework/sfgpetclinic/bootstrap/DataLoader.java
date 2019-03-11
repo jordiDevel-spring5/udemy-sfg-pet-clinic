@@ -3,6 +3,7 @@ package guru.springframework.sfgpetclinic.bootstrap;
 import java.time.LocalDate;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import guru.springframework.sfgpetclinic.model.Owner;
@@ -16,7 +17,9 @@ import guru.springframework.sfgpetclinic.services.PetTypeService;
 import guru.springframework.sfgpetclinic.services.SpecialityService;
 import guru.springframework.sfgpetclinic.services.VetService;
 import guru.springframework.sfgpetclinic.services.VisitService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -26,14 +29,17 @@ public class DataLoader implements CommandLineRunner {
 	private final SpecialityService specialityService;
 	private final VisitService visitService;
 	
+	private final Environment environment;
+	
 	public DataLoader(OwnerService ownerService, VetService vetService, 
 			PetTypeService petTypeService, SpecialityService specialityService,
-			VisitService visitService) {
+			VisitService visitService, Environment environment) {
 		this.ownerService = ownerService;
 		this.vetService = vetService;
 		this.petTypeService = petTypeService;
 		this.specialityService = specialityService;
 		this.visitService = visitService;
+		this.environment = environment;
 	}
 
 	@Override
@@ -41,34 +47,38 @@ public class DataLoader implements CommandLineRunner {
 		int count = this.petTypeService.findAll().size();
 		
 		if (count == 0) {
-			this.loadDataIntoMaps();
+			if (this.environment.getActiveProfiles() != null && this.environment.getActiveProfiles().length > 0) {
+				String activeProfile = this.environment.getActiveProfiles()[0];
+				
+				log.debug("Active profile --> " + activeProfile);
+				
+				if ("jpa".equals(activeProfile)) {
+					this.loadDataIntoJpa();
+				}
+				else if ("map".equals(activeProfile) || "default".equals(activeProfile)) {
+					this.loadDataIntoMaps();
+				}
+				else {
+					throw new RuntimeException("Unknown Spring active profile [" + activeProfile + "]");
+				}
+			}
+			else {
+				throw new RuntimeException("Spring active profile not found");
+			}
 		}
 	}
 	
 	private void loadDataIntoMaps() {
-		PetType dog = new PetType();
-		dog.setName("Dog");
-		PetType savedDogPetType = this.petTypeService.save(dog);
+		PetType dogPetType = this.petTypeService.save(PetType.builder().name("Dog").build());
+		PetType catPetType = this.petTypeService.save(PetType.builder().name("Cat").build());
 		
-		PetType cat = new PetType();
-		cat.setName("Cat");
-		PetType savedCatPetType = this.petTypeService.save(cat);
+		log.debug("*** DataLoader *** - Loaded PetTypes...");
 		
-		System.out.println("Loaded PetTypes...");
+		Speciality radiology = this.specialityService.save(Speciality.builder().description("Radiology").build());
+		Speciality surgery = this.specialityService.save(Speciality.builder().description("Surgery").build());
+		Speciality dentistry = this.specialityService.save(Speciality.builder().description("Dentistry").build());
 		
-		Speciality radiology = new Speciality();
-		radiology.setDescription("Radiology");
-		Speciality savedRadiology = this.specialityService.save(radiology);
-		
-		Speciality surgery = new Speciality();
-		surgery.setDescription("Surgery");
-		Speciality savedSurgery = this.specialityService.save(surgery);
-		
-		Speciality dentistry = new Speciality();
-		dentistry.setDescription("Dentistry");
-		Speciality savedDentistry = this.specialityService.save(dentistry);
-		
-		System.out.println("Loaded Specialities...");
+		log.debug("*** DataLoader *** - Loaded Specialities...");
 		
 		Owner owner1 = new Owner();
 		owner1.setFirstName("Michael");
@@ -78,7 +88,7 @@ public class DataLoader implements CommandLineRunner {
 		owner1.setTelephone("666555444");
 		
 		Pet mikesPet = new Pet();
-		mikesPet.setPetType(savedDogPetType);
+		mikesPet.setPetType(dogPetType);
 		mikesPet.setOwner(owner1);
 		mikesPet.setBirthDate(LocalDate.now());
 		mikesPet.setName("Rosco");
@@ -102,7 +112,7 @@ public class DataLoader implements CommandLineRunner {
 		owner2.setTelephone("677566455");
 		
 		Pet fionasPet = new Pet();
-		fionasPet.setPetType(savedCatPetType);
+		fionasPet.setPetType(catPetType);
 		fionasPet.setOwner(owner2);
 		fionasPet.setBirthDate(LocalDate.now());
 		fionasPet.setName("Kitti");
@@ -118,24 +128,107 @@ public class DataLoader implements CommandLineRunner {
 		
 		this.visitService.save(visit2);
 		
-		System.out.println("Loaded Owners...");
+		log.debug("*** DataLoader *** - Loaded Owners...");
 		
 		Vet vet1 = new Vet();
 		vet1.setFirstName("Sam");
 		vet1.setLastName("Axe");
-		vet1.getSpecialities().add(savedRadiology);
+		vet1.getSpecialities().add(radiology);
 		
 		this.vetService.save(vet1);
 		
 		Vet vet2 = new Vet();
 		vet2.setFirstName("Jessie");
 		vet2.setLastName("Porter");
-		vet2.getSpecialities().add(savedSurgery);
-		vet2.getSpecialities().add(savedDentistry);
+		vet2.getSpecialities().add(surgery);
+		vet2.getSpecialities().add(dentistry);
 		
 		this.vetService.save(vet2);
 		
-		System.out.println("Loaded Vets...");
+		log.debug("*** DataLoader *** - Loaded Vets...");
 	}
 	
+	private void loadDataIntoJpa() {
+		PetType dogPetType = this.petTypeService.save(PetType.builder().name("Dog").build());
+		PetType catPetType = this.petTypeService.save(PetType.builder().name("Cat").build());
+		
+		log.debug("*** DataLoader *** - Loaded PetTypes...");
+		
+		Speciality radiology = this.specialityService.save(Speciality.builder().description("Radiology").build());
+		Speciality surgery = this.specialityService.save(Speciality.builder().description("Surgery").build());
+		Speciality dentistry = this.specialityService.save(Speciality.builder().description("Dentistry").build());
+		
+		log.debug("*** DataLoader *** - Loaded Specialities...");
+		
+		Vet vet1 = Vet.builder()
+			.firstName("Sam")
+			.lastName("Axe")
+		.build()
+		.addSpeciality(radiology);
+		
+		this.vetService.save(vet1);
+		
+		log.debug("*** DataLoader *** - Loaded Vet 1...");
+		
+		Vet vet2 = Vet.builder()
+			.firstName("Jessie")
+			.lastName("Porter")
+		.build()
+		.addSpeciality(surgery)
+		.addSpeciality(dentistry);
+		
+		this.vetService.save(vet2);
+		
+		log.debug("*** DataLoader *** - Loaded Vet 2...");
+		
+		Visit visit1 = Visit.builder()
+			.date(LocalDate.now())
+			.description("Rosco Annual Revision")
+		.build();
+		
+		Pet mikesPet = Pet.builder()
+			.petType(dogPetType)
+			.birthDate(LocalDate.now())
+			.name("Rosco")
+		.build()
+		.addVisit(visit1);
+		
+		Owner owner1 = Owner.builder()
+			.firstName("Michael")
+			.lastName("Weston")
+			.address("Muntaner 202")
+			.city("Barcelona")
+			.telephone("666555444")
+		.build()
+		.addPet(mikesPet);
+		
+		this.ownerService.save(owner1);
+		
+		log.debug("*** DataLoader *** - Loaded Owner 1...");
+		
+		Visit visit2 = Visit.builder()
+			.date(LocalDate.now())
+			.description("Kitti Annual Revision")
+		.build();
+		
+		Pet fionasPet = Pet.builder()
+			.petType(catPetType)
+			.birthDate(LocalDate.now())
+			.name("Kitti")
+		.build()
+		.addVisit(visit2);
+		
+		Owner owner2 = Owner.builder()
+			.firstName("Fiona")
+			.lastName("Glenanne")
+			.address("Balmes 40")
+			.city("Barcelona")
+			.telephone("677566455")
+		.build()
+		.addPet(fionasPet);
+		
+		this.ownerService.save(owner2);
+		
+		log.debug("*** DataLoader *** - Loaded Owner 2...");
+	}
 }
