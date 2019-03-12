@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import guru.springframework.sfgpetclinic.model.Pet;
 import guru.springframework.sfgpetclinic.repositories.PetRepository;
 import guru.springframework.sfgpetclinic.services.PetService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Profile("jpa")
 public class PetServiceJpa implements PetService {
@@ -22,11 +24,15 @@ public class PetServiceJpa implements PetService {
 
 	@Override
 	public Pet findById(Long id) {
+		log.debug("[PetServiceJpa] - findById method has been called");
+		
 		return this.petRepository.findById(id).orElse(null);
 	}
 
 	@Override
 	public Set<Pet> findAll() {
+		log.debug("[PetServiceJpa] - findAll method has been called");
+		
 		Set<Pet> petSet = new HashSet<>();
 		
 		this.petRepository.findAll().forEach(petSet::add);
@@ -36,16 +42,22 @@ public class PetServiceJpa implements PetService {
 
 	@Override
 	public Pet save(Pet t) {
+		log.debug("[PetServiceJpa] - save method has been called");
+		
 		return this.petRepository.save(t);
 	}
 
 	@Override
 	public void delete(Pet t) {
+		log.debug("[PetServiceJpa] - delete method has been called");
+		
 		this.petRepository.delete(t);
 	}
 
 	@Override
 	public void deleteById(Long id) {
+		log.debug("[PetServiceJpa] - deleteById method has been called");
+		
 		this.petRepository.deleteById(id);
 	}
 	

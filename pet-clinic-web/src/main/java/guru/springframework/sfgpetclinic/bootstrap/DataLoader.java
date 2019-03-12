@@ -48,104 +48,31 @@ public class DataLoader implements CommandLineRunner {
 		
 		if (count == 0) {
 			if (this.environment.getActiveProfiles() != null && this.environment.getActiveProfiles().length > 0) {
-				String activeProfile = this.environment.getActiveProfiles()[0];
-				
-				log.debug("Active profile --> " + activeProfile);
-				
-				if ("jpa".equals(activeProfile)) {
-					this.loadDataIntoJpa();
-				}
-				else if ("map".equals(activeProfile) || "default".equals(activeProfile)) {
-					this.loadDataIntoMaps();
+				if (this.environment.getActiveProfiles().length == 1) {
+					String activeProfile = this.environment.getActiveProfiles()[0];
+					
+					log.debug("Found Spring active profile: " + activeProfile);
+					
+					switch (activeProfile) {
+						case "jpa":
+							this.loadDataIntoJpa();
+							return;
+						case "map":
+						case "default":
+							this.loadDataIntoMaps();
+							return;
+						default:
+							throw new RuntimeException("Unknown Spring active profile [" + activeProfile + "]");
+					}
 				}
 				else {
-					throw new RuntimeException("Unknown Spring active profile [" + activeProfile + "]");
+					throw new RuntimeException("Found multiple Spring active profiles");
 				}
 			}
 			else {
 				throw new RuntimeException("Spring active profile not found");
 			}
 		}
-	}
-	
-	private void loadDataIntoMaps() {
-		PetType dogPetType = this.petTypeService.save(PetType.builder().name("Dog").build());
-		PetType catPetType = this.petTypeService.save(PetType.builder().name("Cat").build());
-		
-		log.debug("*** DataLoader *** - Loaded PetTypes...");
-		
-		Speciality radiology = this.specialityService.save(Speciality.builder().description("Radiology").build());
-		Speciality surgery = this.specialityService.save(Speciality.builder().description("Surgery").build());
-		Speciality dentistry = this.specialityService.save(Speciality.builder().description("Dentistry").build());
-		
-		log.debug("*** DataLoader *** - Loaded Specialities...");
-		
-		Owner owner1 = new Owner();
-		owner1.setFirstName("Michael");
-		owner1.setLastName("Weston");
-		owner1.setAddress("Muntaner 202");
-		owner1.setCity("Barcelona");
-		owner1.setTelephone("666555444");
-		
-		Pet mikesPet = new Pet();
-		mikesPet.setPetType(dogPetType);
-		mikesPet.setOwner(owner1);
-		mikesPet.setBirthDate(LocalDate.now());
-		mikesPet.setName("Rosco");
-		
-		owner1.getPets().add(mikesPet);
-		
-		this.ownerService.save(owner1);
-		
-		Visit visit1 = new Visit();
-		visit1.setDate(LocalDate.now());
-		visit1.setDescription("Rosco Annual Revision");
-		visit1.setPet(mikesPet);
-
-		this.visitService.save(visit1);
-		
-		Owner owner2 = new Owner();
-		owner2.setFirstName("Fiona");
-		owner2.setLastName("Glenanne");
-		owner2.setAddress("Balmes 40");
-		owner2.setCity("Barcelona");
-		owner2.setTelephone("677566455");
-		
-		Pet fionasPet = new Pet();
-		fionasPet.setPetType(catPetType);
-		fionasPet.setOwner(owner2);
-		fionasPet.setBirthDate(LocalDate.now());
-		fionasPet.setName("Kitti");
-		
-		owner2.getPets().add(fionasPet);
-		
-		this.ownerService.save(owner2);
-		
-		Visit visit2 = new Visit();
-		visit2.setDate(LocalDate.now());
-		visit2.setDescription("Kitti Annual Revision");
-		visit2.setPet(fionasPet);
-		
-		this.visitService.save(visit2);
-		
-		log.debug("*** DataLoader *** - Loaded Owners...");
-		
-		Vet vet1 = new Vet();
-		vet1.setFirstName("Sam");
-		vet1.setLastName("Axe");
-		vet1.getSpecialities().add(radiology);
-		
-		this.vetService.save(vet1);
-		
-		Vet vet2 = new Vet();
-		vet2.setFirstName("Jessie");
-		vet2.setLastName("Porter");
-		vet2.getSpecialities().add(surgery);
-		vet2.getSpecialities().add(dentistry);
-		
-		this.vetService.save(vet2);
-		
-		log.debug("*** DataLoader *** - Loaded Vets...");
 	}
 	
 	private void loadDataIntoJpa() {
@@ -230,5 +157,90 @@ public class DataLoader implements CommandLineRunner {
 		this.ownerService.save(owner2);
 		
 		log.debug("*** DataLoader *** - Loaded Owner 2...");
+		
+		log.info("*** Data loaded successfully using loadDataIntoJpa ***");
 	}
+	
+	private void loadDataIntoMaps() {
+		PetType dogPetType = this.petTypeService.save(PetType.builder().name("Dog").build());
+		PetType catPetType = this.petTypeService.save(PetType.builder().name("Cat").build());
+		
+		log.debug("*** DataLoader *** - Loaded PetTypes...");
+		
+		Speciality radiology = this.specialityService.save(Speciality.builder().description("Radiology").build());
+		Speciality surgery = this.specialityService.save(Speciality.builder().description("Surgery").build());
+		Speciality dentistry = this.specialityService.save(Speciality.builder().description("Dentistry").build());
+		
+		log.debug("*** DataLoader *** - Loaded Specialities...");
+		
+		Owner owner1 = new Owner();
+		owner1.setFirstName("Michael");
+		owner1.setLastName("Weston");
+		owner1.setAddress("Muntaner 202");
+		owner1.setCity("Barcelona");
+		owner1.setTelephone("666555444");
+		
+		Pet mikesPet = new Pet();
+		mikesPet.setPetType(dogPetType);
+		mikesPet.setOwner(owner1);
+		mikesPet.setBirthDate(LocalDate.now());
+		mikesPet.setName("Rosco");
+		
+		owner1.getPets().add(mikesPet);
+		
+		this.ownerService.save(owner1);
+		
+		Visit visit1 = new Visit();
+		visit1.setDate(LocalDate.now());
+		visit1.setDescription("Rosco Annual Revision");
+		visit1.setPet(mikesPet);
+
+		this.visitService.save(visit1);
+		
+		Owner owner2 = new Owner();
+		owner2.setFirstName("Fiona");
+		owner2.setLastName("Glenanne");
+		owner2.setAddress("Balmes 40");
+		owner2.setCity("Barcelona");
+		owner2.setTelephone("677566455");
+		
+		Pet fionasPet = new Pet();
+		fionasPet.setPetType(catPetType);
+		fionasPet.setOwner(owner2);
+		fionasPet.setBirthDate(LocalDate.now());
+		fionasPet.setName("Kitti");
+		
+		owner2.getPets().add(fionasPet);
+		
+		this.ownerService.save(owner2);
+		
+		Visit visit2 = new Visit();
+		visit2.setDate(LocalDate.now());
+		visit2.setDescription("Kitti Annual Revision");
+		visit2.setPet(fionasPet);
+		
+		this.visitService.save(visit2);
+		
+		log.debug("*** DataLoader *** - Loaded Owners...");
+		
+		Vet vet1 = new Vet();
+		vet1.setFirstName("Sam");
+		vet1.setLastName("Axe");
+		vet1.getSpecialities().add(radiology);
+		
+		this.vetService.save(vet1);
+		
+		Vet vet2 = new Vet();
+		vet2.setFirstName("Jessie");
+		vet2.setLastName("Porter");
+		vet2.getSpecialities().add(surgery);
+		vet2.getSpecialities().add(dentistry);
+		
+		this.vetService.save(vet2);
+		
+		log.debug("*** DataLoader *** - Loaded Vets...");
+		
+		log.info("*** Data loaded successfully using loadDataIntoMaps ***");
+	}	
+	
 }
