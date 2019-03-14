@@ -86,7 +86,7 @@ public class OwnerServiceMap extends AbstractMapService<Owner, Long> implements 
 	public Owner findByLastName(String lastName) {
 		log.debug("[OwnerServiceMap] - findByLastName method has been called");
 		
-		return map.entrySet().stream().filter(entry -> lastName.equals(entry.getValue().getLastName())).findFirst().orElse(null).getValue();
+		return this.findAll().stream().filter(owner -> lastName.equalsIgnoreCase(owner.getLastName())).findFirst().orElse(null);
 	}
 
 }
