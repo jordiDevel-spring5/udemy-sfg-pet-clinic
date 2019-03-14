@@ -13,11 +13,11 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> 
 	protected Map<Long, T> map = new HashMap<>();
 	
 	Set<T> findAll() {
-		return new HashSet<>(map.values());
+		return new HashSet<>(this.map.values());
 	}
 	
 	T findById(ID id) {
-		return map.get(id);
+		return this.map.get(id);
 	}
 	
 	T save(T t) {
@@ -26,7 +26,7 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> 
 				t.setId(this.getNextId());
 			}
 			
-			map.put(t.getId(), t);
+			this.map.put(t.getId(), t);
 		}
 		else {
 			throw new RuntimeException("Object cannot be null");
@@ -36,16 +36,16 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> 
 	}
 	
 	void delete(T t) {
-		map.entrySet().removeIf(entry -> entry.getValue().equals(t));
+		this.map.entrySet().removeIf(entry -> entry.getValue().equals(t));
 	}
 	
 	void deleteById(ID id) {
-		map.remove(id);
+		this.map.remove(id);
 	}
 	
 	private Long getNextId() {
-		if (map != null && !map.isEmpty()) {
-			return Collections.max(map.keySet()) + 1;
+		if (this.map != null && !this.map.isEmpty()) {
+			return Collections.max(this.map.keySet()) + 1;
 		}
 		else {
 			return 1L;
