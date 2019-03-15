@@ -27,7 +27,7 @@ public class OwnerController {
 		return "owners/index";
 	}
 	
-	@RequestMapping({"find"})
+	@RequestMapping("/find")
 	public String findOwners() {
 		log.debug("[OwnerController] - findOwners has been called");
 		
