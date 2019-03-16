@@ -14,10 +14,11 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import guru.springframework.sfgpetclinic.model.Owner;
@@ -26,7 +27,6 @@ import guru.springframework.sfgpetclinic.repositories.OwnerRepository;
 @ExtendWith(MockitoExtension.class)
 class OwnerServiceJpaTest {
 
-	@InjectMocks
 	OwnerServiceJpa ownerServiceJpa;
 	
 	@Mock
@@ -35,6 +35,13 @@ class OwnerServiceJpaTest {
 	final Long ownerId = 1L;
 	final String lastName = "Smith";
 	final Owner smith = Owner.builder().id(this.ownerId).lastName(this.lastName).build();
+	
+	@BeforeEach
+	public void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+		
+		this.ownerServiceJpa = new OwnerServiceJpa(this.ownerRepository);
+	}
 	
 	@Test
 	void testFindById() {

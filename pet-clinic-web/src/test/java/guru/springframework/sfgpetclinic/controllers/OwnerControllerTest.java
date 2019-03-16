@@ -16,11 +16,12 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.ui.Model;
 
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
@@ -28,11 +29,13 @@ import guru.springframework.sfgpetclinic.services.OwnerService;
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
 
-	@InjectMocks
 	OwnerController ownerController;
 	
 	@Mock
 	OwnerService ownerService;
+	
+	@Mock
+	Model model;
 	
 	MockMvc mockMvc;
 	
@@ -40,6 +43,10 @@ class OwnerControllerTest {
 	
 	@BeforeEach
 	void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+	
+		this.ownerController = new OwnerController(this.ownerService);
+		
 		this.owners.add(Owner.builder().id(1L).build());
 		this.owners.add(Owner.builder().id(2L).build());
 		
@@ -57,7 +64,7 @@ class OwnerControllerTest {
 		
 		verify(this.ownerService, times(1)).findAll();
 	}
-
+	
 	@Test
 	void testFindOwners() throws Exception {
 		this.mockMvc.perform(get("/owners/find"))
@@ -88,6 +95,6 @@ class OwnerControllerTest {
 		this.ownerService.findAll();
 		
 		verifyZeroInteractions(this.ownerService);
-	}*/
-
+	}
+	*/
 }
